@@ -1,0 +1,212 @@
+[
+  {
+    "id": "mqgw8zc1xove5n2oi",
+    "tierId": "mqgw8zc0jhzk89qpt",
+    "startTime": "08:00",
+    "endTime": "10:00",
+    "dayOfWeek": 0
+  },
+  {
+    "id": "mqgw8zc1tjhlf67ut",
+    "tierId": "mqgw8zc0yq61s3tg6",
+    "startTime": "10:00",
+    "endTime": "12:00",
+    "dayOfWeek": 0
+  },
+  {
+    "id": "mqgw8zc10rvne8m8n",
+    "tierId": "mqgw8zc0yq61s3tg6",
+    "startTime": "14:00",
+    "endTime": "18:00",
+    "dayOfWeek": 0
+  },
+  {
+    "id": "mqgw8zc126iexizvd",
+    "tierId": "mqgw8zc0mxwwpelsk",
+    "startTime": "18:00",
+    "endTime": "21:00",
+    "dayOfWeek": 0
+  },
+  {
+    "id": "mqgw8zc1neu2qbpop",
+    "tierId": "mqgw8zc0b5vj95o91",
+    "startTime": "21:00",
+    "endTime": "22:00",
+    "dayOfWeek": 0
+  },
+  {
+    "id": "mqgw8zc1fz6vqq0fs",
+    "tierId": "mqgw8zc0jhzk89qpt",
+    "startTime": "08:00",
+    "endTime": "10:00",
+    "dayOfWeek": 1
+  },
+  {
+    "id": "mqgw8zc1o7er276dz",
+    "tierId": "mqgw8zc0mxwwpelsk",
+    "startTime": "10:00",
+    "endTime": "14:00",
+    "dayOfWeek": 1
+  },
+  {
+    "id": "mqgw8zc1js050pgim",
+    "tierId": "mqgw8zc0yq61s3tg6",
+    "startTime": "14:00",
+    "endTime": "20:00",
+    "dayOfWeek": 1
+  },
+  {
+    "id": "mqgw8zc1fjaiztz4g",
+    "tierId": "mqgw8zc0b5vj95o91",
+    "startTime": "20:00",
+    "endTime": "22:00",
+    "dayOfWeek": 1
+  },
+  {
+    "id": "mqgw8zc12ufzxsmy1",
+    "tierId": "mqgw8zc0jhzk89qpt",
+    "startTime": "08:00",
+    "endTime": "10:00",
+    "dayOfWeek": 2
+  },
+  {
+    "id": "mqgw8zc1s9bmzmzq5",
+    "tierId": "mqgw8zc0mxwwpelsk",
+    "startTime": "10:00",
+    "endTime": "14:00",
+    "dayOfWeek": 2
+  },
+  {
+    "id": "mqgw8zc1munadvd47",
+    "tierId": "mqgw8zc0yq61s3tg6",
+    "startTime": "14:00",
+    "endTime": "20:00",
+    "dayOfWeek": 2
+  },
+  {
+    "id": "mqgw8zc14kdkj6sla",
+    "tierId": "mqgw8zc0b5vj95o91",
+    "startTime": "20:00",
+    "endTime": "22:00",
+    "dayOfWeek": 2
+  },
+  {
+    "id": "mqgw8zc1c7jn9giob",
+    "tierId": "mqgw8zc0jhzk89qpt",
+    "startTime": "08:00",
+    "endTime": "10:00",
+    "dayOfWeek": 3
+  },
+  {
+    "id": "mqgw8zc1yobn7k82l",
+    "tierId": "mqgw8zc0mxwwpelsk",
+    "startTime": "10:00",
+    "endTime": "14:00",
+    "dayOfWeek": 3
+  },
+  {
+    "id": "mqgw8zc19mkhkgdiz",
+    "tierId": "mqgw8zc0yq61s3tg6",
+    "startTime": "14:00",
+    "endTime": "20:00",
+    "dayOfWeek": 3
+  },
+  {
+    "id": "mqgw8zc13wqy2gguv",
+    "tierId": "mqgw8zc0b5vj95o91",
+    "startTime": "20:00",
+    "endTime": "22:00",
+    "dayOfWeek": 3
+  },
+  {
+    "id": "mqgw8zc1kjz404kml",
+    "tierId": "mqgw8zc0jhzk89qpt",
+    "startTime": "08:00",
+    "endTime": "10:00",
+    "dayOfWeek": 4
+  },
+  {
+    "id": "mqgw8zc1opgrdxln8",
+    "tierId": "mqgw8zc0mxwwpelsk",
+    "startTime": "10:00",
+    "endTime": "14:00",
+    "dayOfWeek": 4
+  },
+  {
+    "id": "mqgw8zc1dobbi32kh",
+    "tierId": "mqgw8zc0yq61s3tg6",
+    "startTime": "14:00",
+    "endTime": "20:00",
+    "dayOfWeek": 4
+  },
+  {
+    "id": "mqgw8zc1hfzxpa6gy",
+    "tierId": "mqgw8zc0b5vj95o91",
+    "startTime": "20:00",
+    "endTime": "22:00",
+    "dayOfWeek": 4
+  },
+  {
+    "id": "mqgw8zc1kcki4m8nw",
+    "tierId": "mqgw8zc0jhzk89qpt",
+    "startTime": "08:00",
+    "endTime": "10:00",
+    "dayOfWeek": 5
+  },
+  {
+    "id": "mqgw8zc1h7yg4jtdj",
+    "tierId": "mqgw8zc0mxwwpelsk",
+    "startTime": "10:00",
+    "endTime": "14:00",
+    "dayOfWeek": 5
+  },
+  {
+    "id": "mqgw8zc1clv9km4fm",
+    "tierId": "mqgw8zc0yq61s3tg6",
+    "startTime": "14:00",
+    "endTime": "20:00",
+    "dayOfWeek": 5
+  },
+  {
+    "id": "mqgw8zc15lq82po6w",
+    "tierId": "mqgw8zc0b5vj95o91",
+    "startTime": "20:00",
+    "endTime": "22:00",
+    "dayOfWeek": 5
+  },
+  {
+    "id": "mqgw8zc193jltw480",
+    "tierId": "mqgw8zc0jhzk89qpt",
+    "startTime": "08:00",
+    "endTime": "10:00",
+    "dayOfWeek": 6
+  },
+  {
+    "id": "mqgw8zc1omnmluyzg",
+    "tierId": "mqgw8zc0yq61s3tg6",
+    "startTime": "10:00",
+    "endTime": "12:00",
+    "dayOfWeek": 6
+  },
+  {
+    "id": "mqgw8zc1wwo0gro03",
+    "tierId": "mqgw8zc0yq61s3tg6",
+    "startTime": "14:00",
+    "endTime": "18:00",
+    "dayOfWeek": 6
+  },
+  {
+    "id": "mqgw8zc1qjqb0i4vb",
+    "tierId": "mqgw8zc0mxwwpelsk",
+    "startTime": "18:00",
+    "endTime": "21:00",
+    "dayOfWeek": 6
+  },
+  {
+    "id": "mqgw8zc1mh8c8f8uj",
+    "tierId": "mqgw8zc0b5vj95o91",
+    "startTime": "21:00",
+    "endTime": "22:00",
+    "dayOfWeek": 6
+  }
+]

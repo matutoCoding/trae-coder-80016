@@ -1,0 +1,26 @@
+[
+  {
+    "id": "mqgw8zc0jhzk89qpt",
+    "name": "早间优惠",
+    "rate": 40,
+    "color": "#4CAF50"
+  },
+  {
+    "id": "mqgw8zc0mxwwpelsk",
+    "name": "平峰时段",
+    "rate": 60,
+    "color": "#2196F3"
+  },
+  {
+    "id": "mqgw8zc0yq61s3tg6",
+    "name": "高峰时段",
+    "rate": 100,
+    "color": "#FF5722"
+  },
+  {
+    "id": "mqgw8zc0b5vj95o91",
+    "name": "夜间特惠",
+    "rate": 50,
+    "color": "#9C27B0"
+  }
+]

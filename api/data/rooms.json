@@ -1,0 +1,79 @@
+[
+  {
+    "id": "mqgw8zby0kbf8vry8",
+    "name": "A101 - 标准琴房",
+    "type": "standard",
+    "equipment": [
+      "立式钢琴",
+      "琴凳",
+      "乐谱架"
+    ],
+    "capacity": 1,
+    "status": "available",
+    "description": "基础练习琴房，配备雅马哈立式钢琴",
+    "createdAt": "2026-06-16T17:06:16.414Z"
+  },
+  {
+    "id": "mqgw8zbyc3zjymxex",
+    "name": "A102 - 标准琴房",
+    "type": "standard",
+    "equipment": [
+      "立式钢琴",
+      "琴凳",
+      "乐谱架"
+    ],
+    "capacity": 1,
+    "status": "available",
+    "description": "基础练习琴房，配备卡瓦依立式钢琴",
+    "createdAt": "2026-06-16T17:06:16.414Z"
+  },
+  {
+    "id": "mqgw8zby2345gy1i6",
+    "name": "B201 - 精品琴房",
+    "type": "premium",
+    "equipment": [
+      "三角钢琴",
+      "琴凳",
+      "乐谱架",
+      "空调",
+      "隔音棉"
+    ],
+    "capacity": 2,
+    "status": "available",
+    "description": "高品质练习琴房，配备三角钢琴，专业隔音",
+    "createdAt": "2026-06-16T17:06:16.414Z"
+  },
+  {
+    "id": "mqgw8zby0y9dybmdl",
+    "name": "B202 - 精品琴房",
+    "type": "premium",
+    "equipment": [
+      "三角钢琴",
+      "琴凳",
+      "乐谱架",
+      "空调",
+      "隔音棉"
+    ],
+    "capacity": 2,
+    "status": "available",
+    "description": "高品质练习琴房，配备三角钢琴，专业隔音",
+    "createdAt": "2026-06-16T17:06:16.414Z"
+  },
+  {
+    "id": "mqgw8zby498glso2r",
+    "name": "C301 - 演奏厅",
+    "type": "grand",
+    "equipment": [
+      "三角演奏琴",
+      "琴凳",
+      "乐谱架",
+      "专业音响",
+      "空调",
+      "观众席"
+    ],
+    "capacity": 10,
+    "status": "available",
+    "description": "小型演奏厅，适合小型演出和大师课",
+    "createdAt": "2026-06-16T17:06:16.414Z"
+  }
+]
