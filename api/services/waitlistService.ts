@@ -10,8 +10,6 @@ const NOTIFICATION_TIMEOUT_MINUTES = 5;
 export function getWaitlist(date?: string): WaitlistEntry[] {
   let entries = readData<WaitlistEntry[]>(DataFiles.WAITLIST, []);
   
-  entries = entries.filter(e => e.status !== 'cancelled' && e.status !== 'confirmed');
-  
   if (date) {
     entries = entries.filter(e => {
       const entryDate = new Date(e.preferredStartTime).toISOString().split('T')[0];
@@ -189,6 +187,9 @@ export function processWaitlistForRoom(roomId: string, startTime: string, endTim
 export function processExpiredNotifications(): void {
   const entries = readData<WaitlistEntry[]>(DataFiles.WAITLIST, []);
   const now = new Date();
+  let changed = false;
+  
+  const timedOutEntries: WaitlistEntry[] = [];
   
   for (const entry of entries) {
     if (entry.status !== 'notified' || !entry.notifiedAt) continue;
@@ -197,12 +198,53 @@ export function processExpiredNotifications(): void {
     const timeoutAt = new Date(notifiedAt.getTime() + NOTIFICATION_TIMEOUT_MINUTES * 60 * 1000);
     
     if (now > timeoutAt) {
-      entry.status = 'waiting';
+      entry.status = 'timed_out';
       entry.notifiedAt = undefined;
+      timedOutEntries.push(entry);
+      changed = true;
     }
   }
   
-  writeData(DataFiles.WAITLIST, entries);
+  if (changed) {
+    writeData(DataFiles.WAITLIST, entries);
+    reorderWaitlist();
+    
+    for (const timedOut of timedOutEntries) {
+      const nextWaiting = getNextWaitingForSlot(timedOut.roomId, timedOut.preferredStartTime, timedOut.preferredEndTime);
+      if (nextWaiting) {
+        notifyWaitlistEntry(nextWaiting.id);
+        addNotification({
+          type: 'waitlist',
+          title: '候补超时，已通知下一位',
+          message: `${timedOut.customerName} 未在5分钟内确认，已自动通知下一位候补用户`
+        });
+      }
+    }
+  }
+}
+
+function getNextWaitingForSlot(roomId: string | undefined, startTime: string, endTime: string): WaitlistEntry | null {
+  const entries = readData<WaitlistEntry[]>(DataFiles.WAITLIST, []);
+  const waiting = entries
+    .filter(e => e.status === 'waiting')
+    .sort((a, b) => a.position - b.position);
+  
+  for (const entry of waiting) {
+    if (roomId && entry.roomId && entry.roomId !== roomId) continue;
+    
+    if (!roomId || !entry.roomId || entry.roomId === roomId) {
+      const entryStart = new Date(entry.preferredStartTime).getTime();
+      const entryEnd = new Date(entry.preferredEndTime).getTime();
+      const slotStart = new Date(startTime).getTime();
+      const slotEnd = new Date(endTime).getTime();
+      
+      if (entryStart < slotEnd && entryEnd > slotStart) {
+        return entry;
+      }
+    }
+  }
+  
+  return null;
 }
 
 export function getWaitlistCount(): number {

@@ -1,21 +1,18 @@
-import { useState, useEffect } from 'react';
-import { Plus, Clock, User, Phone, Calendar, Bell, Check, X, ChevronRight } from 'lucide-react';
+import { useState, useEffect, useCallback } from 'react';
+import { Plus, Clock, User, Phone, Calendar, Bell, Check, X, ChevronRight, AlertCircle } from 'lucide-react';
 import { useAppStore } from '../stores/appStore';
+import { api } from '../services/api';
 import Button from '../components/Button';
 import Modal from '../components/Modal';
 import type { WaitlistEntry } from '../../shared/types';
 
 export default function Waitlist() {
   const {
-    waitlist,
     rooms,
-    fetchWaitlist,
     fetchRooms,
-    addToWaitlist,
-    confirmWaitlist,
-    cancelWaitlist
   } = useAppStore();
   
+  const [waitlistAll, setWaitlistAll] = useState<WaitlistEntry[]>([]);
   const [showAddModal, setShowAddModal] = useState(false);
   const [formData, setFormData] = useState({
     customerName: '',
@@ -29,10 +26,26 @@ export default function Waitlist() {
     new Date().toISOString().split('T')[0]
   );
   
+  const [confirmingId, setConfirmingId] = useState<string | null>(null);
+  
+  const loadWaitlist = useCallback(async () => {
+    try {
+      const result = await api.waitlist.getAll(selectedDate);
+      setWaitlistAll(result.entries);
+    } catch (err) {
+      console.error('加载候补列表失败', err);
+    }
+  }, [selectedDate]);
+  
   useEffect(() => {
-    fetchWaitlist(selectedDate);
+    loadWaitlist();
     fetchRooms();
-  }, [fetchWaitlist, fetchRooms, selectedDate]);
+  }, [loadWaitlist, fetchRooms]);
+  
+  useEffect(() => {
+    const timer = setInterval(loadWaitlist, 10000);
+    return () => clearInterval(timer);
+  }, [loadWaitlist]);
   
   const handleAdd = () => {
     setFormData({
@@ -49,7 +62,7 @@ export default function Waitlist() {
     if (!formData.customerName || !formData.customerPhone || 
         !formData.preferredStartTime || !formData.preferredEndTime) return;
     
-    await addToWaitlist({
+    await api.waitlist.add({
       customerName: formData.customerName,
       customerPhone: formData.customerPhone,
       preferredStartTime: formData.preferredStartTime,
@@ -58,29 +71,43 @@ export default function Waitlist() {
     });
     
     setShowAddModal(false);
-    fetchWaitlist(selectedDate);
+    loadWaitlist();
   };
   
   const handleConfirm = async (id: string) => {
-    if (confirm('确定要确认这位候补用户的补位吗？')) {
-      await confirmWaitlist(id);
-      fetchWaitlist(selectedDate);
+    setConfirmingId(id);
+    try {
+      await api.waitlist.confirm(id);
+      loadWaitlist();
+    } catch (err) {
+      console.error('确认补位失败', err);
+      alert('确认补位失败，可能琴房已不可用');
+    } finally {
+      setConfirmingId(null);
     }
   };
   
   const handleCancel = async (id: string) => {
     if (confirm('确定要取消这位用户的候补吗？')) {
-      await cancelWaitlist(id);
-      fetchWaitlist(selectedDate);
+      await api.waitlist.cancel(id);
+      loadWaitlist();
     }
+  };
+  
+  const getNotifiedRemaining = (notifiedAt: string) => {
+    const notified = new Date(notifiedAt).getTime();
+    const deadline = notified + 5 * 60 * 1000;
+    const remaining = Math.max(0, deadline - Date.now());
+    return Math.ceil(remaining / 1000);
   };
   
   const getStatusLabel = (status: string) => {
     switch (status) {
       case 'waiting': return '等待中';
       case 'notified': return '已通知';
-      case 'confirmed': return '已确认';
+      case 'confirmed': return '已补位';
       case 'cancelled': return '已取消';
+      case 'timed_out': return '已超时';
       default: return status;
     }
   };
@@ -90,11 +117,14 @@ export default function Waitlist() {
       case 'waiting': return 'status-waiting';
       case 'notified': return 'status-booked';
       case 'confirmed': return 'status-available';
+      case 'cancelled': return 'bg-walnut-100 text-walnut-400';
+      case 'timed_out': return 'bg-danger-50 text-danger-500';
       default: return '';
     }
   };
   
-  const waitingList = waitlist.filter(e => e.status === 'waiting' || e.status === 'notified');
+  const activeList = waitlistAll.filter(e => e.status === 'waiting' || e.status === 'notified');
+  const historyList = waitlistAll.filter(e => e.status === 'confirmed' || e.status === 'cancelled' || e.status === 'timed_out');
   
   return (
     <div className="space-y-6">
@@ -110,7 +140,12 @@ export default function Waitlist() {
             />
           </div>
           <span className="text-walnut-500 text-sm">
-            共 {waitingList.length} 人排队
+            共 {activeList.length} 人排队
+            {waitlistAll.filter(e => e.status === 'notified').length > 0 && (
+              <span className="ml-2 text-gold-600">
+                · {waitlistAll.filter(e => e.status === 'notified').length} 人待确认
+              </span>
+            )}
           </span>
         </div>
         <Button icon={Plus} variant="gold" onClick={handleAdd}>
@@ -131,17 +166,21 @@ export default function Waitlist() {
           </div>
           
           <div className="space-y-3 max-h-[500px] overflow-y-auto">
-            {waitingList.length === 0 ? (
+            {activeList.length === 0 ? (
               <div className="text-center py-12 text-walnut-400">
                 <Clock className="w-16 h-16 mx-auto mb-3 opacity-50" />
                 <p>暂无候补用户</p>
                 <p className="text-sm mt-1">点击右上角添加候补</p>
               </div>
             ) : (
-              waitingList.map((entry, index) => (
+              activeList.map((entry, index) => (
                 <div
                   key={entry.id}
-                  className="flex items-center gap-4 p-4 bg-walnut-50 rounded-xl hover:bg-walnut-100 transition-colors group"
+                  className={`flex items-center gap-4 p-4 rounded-xl transition-colors group ${
+                    entry.status === 'notified'
+                      ? 'bg-gold-50 ring-2 ring-gold-300'
+                      : 'bg-walnut-50 hover:bg-walnut-100'
+                  }`}
                 >
                   <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-lg ${
                     index === 0 ? 'bg-gold-400 text-walnut-900' :
@@ -171,30 +210,67 @@ export default function Waitlist() {
                         </span>
                       )}
                     </div>
+                    {entry.status === 'notified' && entry.notifiedAt && (
+                      <div className="text-xs text-gold-600 mt-1 flex items-center gap-1">
+                        <AlertCircle className="w-3 h-3" />
+                        请在 {getNotifiedRemaining(entry.notifiedAt)} 秒内确认
+                      </div>
+                    )}
                   </div>
                   
-                  <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                    {entry.status === 'waiting' && (
+                  <div className="flex items-center gap-2">
+                    {entry.status === 'notified' && (
                       <button
                         onClick={() => handleConfirm(entry.id)}
-                        className="p-2 bg-success-100 text-success-600 rounded-lg hover:bg-success-200"
+                        disabled={confirmingId === entry.id}
+                        className="p-2 bg-success-100 text-success-600 rounded-lg hover:bg-success-200 disabled:opacity-50"
                         title="确认补位"
                       >
                         <Check className="w-4 h-4" />
                       </button>
                     )}
-                    <button
-                      onClick={() => handleCancel(entry.id)}
-                      className="p-2 bg-danger-100 text-danger-600 rounded-lg hover:bg-danger-200"
-                      title="取消候补"
-                    >
-                      <X className="w-4 h-4" />
-                    </button>
+                    {(entry.status === 'waiting' || entry.status === 'notified') && (
+                      <button
+                        onClick={() => handleCancel(entry.id)}
+                        className="p-2 bg-danger-100 text-danger-600 rounded-lg hover:bg-danger-200"
+                        title="取消候补"
+                      >
+                        <X className="w-4 h-4" />
+                      </button>
+                    )}
                   </div>
                 </div>
               ))
             )}
           </div>
+          
+          {historyList.length > 0 && (
+            <div className="mt-6 pt-4 border-t border-walnut-100">
+              <h4 className="text-sm font-medium text-walnut-500 mb-3">历史记录</h4>
+              <div className="space-y-2">
+                {historyList.map(entry => (
+                  <div
+                    key={entry.id}
+                    className="flex items-center gap-3 p-3 rounded-lg bg-walnut-50/50 opacity-70"
+                  >
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm text-walnut-600">{entry.customerName}</span>
+                        <span className={`status-badge text-xs ${getStatusColor(entry.status)}`}>
+                          {getStatusLabel(entry.status)}
+                        </span>
+                      </div>
+                      <div className="text-xs text-walnut-400 mt-0.5">
+                        {new Date(entry.preferredStartTime).toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' })}
+                        {' - '}
+                        {new Date(entry.preferredEndTime).toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' })}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
         
         <div className="space-y-6">
@@ -236,19 +312,19 @@ export default function Waitlist() {
             <div className="grid grid-cols-3 gap-4">
               <div className="text-center p-4 bg-walnut-50 rounded-xl">
                 <div className="font-display text-2xl font-bold text-walnut-800">
-                  {waitlist.filter(e => e.status === 'waiting').length}
+                  {waitlistAll.filter(e => e.status === 'waiting').length}
                 </div>
                 <div className="text-sm text-walnut-500 mt-1">等待中</div>
               </div>
               <div className="text-center p-4 bg-blue-50 rounded-xl">
                 <div className="font-display text-2xl font-bold text-blue-600">
-                  {waitlist.filter(e => e.status === 'notified').length}
+                  {waitlistAll.filter(e => e.status === 'notified').length}
                 </div>
                 <div className="text-sm text-walnut-500 mt-1">已通知</div>
               </div>
               <div className="text-center p-4 bg-success-50 rounded-xl">
                 <div className="font-display text-2xl font-bold text-success-600">
-                  {waitlist.filter(e => e.status === 'confirmed').length}
+                  {waitlistAll.filter(e => e.status === 'confirmed').length}
                 </div>
                 <div className="text-sm text-walnut-500 mt-1">已补位</div>
               </div>

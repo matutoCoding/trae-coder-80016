@@ -1,16 +1,15 @@
-import { useState, useEffect } from 'react';
-import { Receipt, Search, Download, Filter, ChevronLeft, ChevronRight, Eye } from 'lucide-react';
-import { useAppStore } from '../stores/appStore';
+import { useState, useEffect, useCallback } from 'react';
+import { Receipt, Download, Filter, ChevronLeft, ChevronRight, Eye } from 'lucide-react';
 import { api } from '../services/api';
 import Button from '../components/Button';
 import Modal from '../components/Modal';
 import type { Bill } from '../../shared/types';
 
 export default function Bills() {
-  const { bills, fetchBills } = useAppStore();
+  const [billList, setBillList] = useState<Bill[]>([]);
   const [page, setPage] = useState(1);
   const [total, setTotal] = useState(0);
-  const [pageSize] = useState(10);
+  const [pageSize] = useState(20);
   const [filters, setFilters] = useState({
     startDate: '',
     endDate: '',
@@ -18,6 +17,7 @@ export default function Bills() {
   });
   const [selectedBill, setSelectedBill] = useState<Bill | null>(null);
   const [showDetailModal, setShowDetailModal] = useState(false);
+  const [loading, setLoading] = useState(false);
   
   const [stats, setStats] = useState({
     totalRevenue: 0,
@@ -26,12 +26,8 @@ export default function Bills() {
     averageAmount: 0
   });
   
-  useEffect(() => {
-    loadBills();
-    loadStats();
-  }, [page, filters]);
-  
-  const loadBills = async () => {
+  const loadBills = useCallback(async () => {
+    setLoading(true);
     try {
       const result = await api.bills.getAll({
         page,
@@ -40,20 +36,28 @@ export default function Bills() {
         endDate: filters.endDate || undefined,
         status: filters.status || undefined
       });
+      setBillList(result.bills);
       setTotal(result.total);
     } catch (err) {
       console.error('加载账单失败', err);
+    } finally {
+      setLoading(false);
     }
-  };
+  }, [page, pageSize, filters]);
   
-  const loadStats = async () => {
+  const loadStats = useCallback(async () => {
     try {
       const data = await api.bills.getStats('month');
       setStats(data);
     } catch (err) {
       console.error('加载统计失败', err);
     }
-  };
+  }, []);
+  
+  useEffect(() => {
+    loadBills();
+    loadStats();
+  }, [loadBills, loadStats]);
   
   const handleViewDetail = (bill: Bill) => {
     setSelectedBill(bill);
@@ -73,7 +77,7 @@ export default function Bills() {
     }
   };
   
-  const totalPages = Math.ceil(total / pageSize);
+  const totalPages = Math.max(1, Math.ceil(total / pageSize));
   
   const getStatusLabel = (status: string) => {
     switch (status) {
@@ -100,6 +104,18 @@ export default function Bills() {
       return `${hours}小时${mins > 0 ? mins + '分钟' : ''}`;
     }
     return `${mins}分钟`;
+  };
+  
+  const getPageNumbers = () => {
+    const pages: number[] = [];
+    const maxVisible = 5;
+    let start = Math.max(1, page - Math.floor(maxVisible / 2));
+    const end = Math.min(totalPages, start + maxVisible - 1);
+    start = Math.max(1, end - maxVisible + 1);
+    for (let i = start; i <= end; i++) {
+      pages.push(i);
+    }
+    return pages;
   };
   
   return (
@@ -206,7 +222,13 @@ export default function Bills() {
               </tr>
             </thead>
             <tbody className="divide-y divide-walnut-50">
-              {bills.length === 0 ? (
+              {loading ? (
+                <tr>
+                  <td colSpan={8} className="py-12 text-center text-walnut-400">
+                    <div className="animate-pulse-soft">加载中...</div>
+                  </td>
+                </tr>
+              ) : billList.length === 0 ? (
                 <tr>
                   <td colSpan={8} className="py-12 text-center text-walnut-400">
                     <Receipt className="w-12 h-12 mx-auto mb-2 opacity-50" />
@@ -214,7 +236,7 @@ export default function Bills() {
                   </td>
                 </tr>
               ) : (
-                bills.map(bill => (
+                billList.map(bill => (
                   <tr key={bill.id} className="hover:bg-walnut-50/50 transition-colors">
                     <td className="py-4 px-6 text-sm font-mono text-walnut-600">
                       {bill.id.slice(0, 8).toUpperCase()}
@@ -270,22 +292,19 @@ export default function Bills() {
               >
                 <ChevronLeft className="w-4 h-4" />
               </button>
-              {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
-                const pageNum = i + 1;
-                return (
-                  <button
-                    key={pageNum}
-                    onClick={() => setPage(pageNum)}
-                    className={`w-9 h-9 rounded-lg text-sm font-medium transition-colors ${
-                      page === pageNum
-                        ? 'bg-walnut-800 text-white'
-                        : 'hover:bg-walnut-50 text-walnut-600'
-                    }`}
-                  >
-                    {pageNum}
-                  </button>
-                );
-              })}
+              {getPageNumbers().map(pageNum => (
+                <button
+                  key={pageNum}
+                  onClick={() => setPage(pageNum)}
+                  className={`w-9 h-9 rounded-lg text-sm font-medium transition-colors ${
+                    page === pageNum
+                      ? 'bg-walnut-800 text-white'
+                      : 'hover:bg-walnut-50 text-walnut-600'
+                  }`}
+                >
+                  {pageNum}
+                </button>
+              ))}
               <button
                 onClick={() => setPage(p => Math.min(totalPages, p + 1))}
                 disabled={page === totalPages}

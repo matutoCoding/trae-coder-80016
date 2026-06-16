@@ -6,7 +6,11 @@ import {
   updatePricingTier,
   createPricingTier,
   deletePricingTier,
-  getPricingScheduleByDay
+  getPricingScheduleByDay,
+  updateTimeSlot,
+  createTimeSlot,
+  deleteTimeSlot,
+  updateTimeSlotsForDay
 } from '../services/pricingService.js';
 
 const router = Router();
@@ -60,6 +64,37 @@ router.get('/schedule/:dayOfWeek', (req: Request, res: Response) => {
   }
   const schedule = getPricingScheduleByDay(dayOfWeek);
   res.json({ schedule });
+});
+
+router.put('/slots/:id', (req: Request, res: Response) => {
+  const slot = updateTimeSlot(req.params.id, req.body);
+  if (!slot) {
+    return res.status(404).json({ error: '时段不存在' });
+  }
+  res.json({ slot });
+});
+
+router.delete('/slots/:id', (req: Request, res: Response) => {
+  const success = deleteTimeSlot(req.params.id);
+  if (!success) {
+    return res.status(404).json({ error: '时段不存在' });
+  }
+  res.json({ success: true });
+});
+
+router.put('/schedule/:dayOfWeek', (req: Request, res: Response) => {
+  const dayOfWeek = parseInt(req.params.dayOfWeek);
+  if (isNaN(dayOfWeek) || dayOfWeek < 0 || dayOfWeek > 6) {
+    return res.status(400).json({ error: '无效的星期参数' });
+  }
+  
+  const { slots } = req.body;
+  if (!Array.isArray(slots)) {
+    return res.status(400).json({ error: '缺少时段数据' });
+  }
+  
+  const result = updateTimeSlotsForDay(dayOfWeek, slots);
+  res.json({ schedule: result });
 });
 
 router.post('/calculate', (req: Request, res: Response) => {

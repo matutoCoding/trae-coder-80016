@@ -1,5 +1,5 @@
 import { PricingTier, TimeSlot, PricingCalculation, PricingBreakdown } from '../../shared/types.js';
-import { readData, writeData } from '../utils/storage.js';
+import { readData, writeData, generateId } from '../utils/storage.js';
 import { DataFiles } from '../data/mockData.js';
 
 function parseTime(timeStr: string): number {
@@ -159,6 +159,43 @@ export function updateTimeSlot(slotId: string, data: Partial<TimeSlot>): TimeSlo
   slots[index] = { ...slots[index], ...data };
   writeData(DataFiles.TIME_SLOTS, slots);
   return slots[index];
+}
+
+export function createTimeSlot(data: Omit<TimeSlot, 'id'>): TimeSlot {
+  const slots = getTimeSlots();
+  const newSlot: TimeSlot = {
+    id: generateId(),
+    ...data
+  };
+  slots.push(newSlot);
+  writeData(DataFiles.TIME_SLOTS, slots);
+  return newSlot;
+}
+
+export function deleteTimeSlot(slotId: string): boolean {
+  const slots = getTimeSlots();
+  const filtered = slots.filter(s => s.id !== slotId);
+  if (filtered.length === slots.length) return false;
+  writeData(DataFiles.TIME_SLOTS, filtered);
+  return true;
+}
+
+export function updateTimeSlotsForDay(dayOfWeek: number, newSlots: { tierId: string; startTime: string; endTime: string }[]): { tier: PricingTier; startTime: string; endTime: string }[] {
+  const slots = getTimeSlots();
+  const filtered = slots.filter(s => s.dayOfWeek !== dayOfWeek);
+  
+  for (const ns of newSlots) {
+    filtered.push({
+      id: generateId(),
+      tierId: ns.tierId,
+      startTime: ns.startTime,
+      endTime: ns.endTime,
+      dayOfWeek
+    });
+  }
+  
+  writeData(DataFiles.TIME_SLOTS, filtered);
+  return getPricingScheduleByDay(dayOfWeek);
 }
 
 export function getPricingScheduleByDay(dayOfWeek: number): { tier: PricingTier; startTime: string; endTime: string }[] {

@@ -123,6 +123,20 @@ export const api = {
     getSlots: () => request<{ slots: TimeSlot[] }>('/pricing/slots'),
     getSchedule: (dayOfWeek: number) => 
       request<{ schedule: { tier: PricingTier; startTime: string; endTime: string }[] }>(`/pricing/schedule/${dayOfWeek}`),
+    updateSchedule: (dayOfWeek: number, slots: { tierId: string; startTime: string; endTime: string }[]) =>
+      request<{ schedule: { tier: PricingTier; startTime: string; endTime: string }[] }>(`/pricing/schedule/${dayOfWeek}`, {
+        method: 'PUT',
+        body: JSON.stringify({ slots })
+      }),
+    updateSlot: (id: string, data: Partial<TimeSlot>) =>
+      request<{ slot: TimeSlot }>(`/pricing/slots/${id}`, {
+        method: 'PUT',
+        body: JSON.stringify(data)
+      }),
+    deleteSlot: (id: string) =>
+      request<{ success: boolean }>(`/pricing/slots/${id}`, {
+        method: 'DELETE'
+      }),
     calculate: (startTime: string, endTime: string, roomType?: string) =>
       request<PricingCalculation>('/pricing/calculate', {
         method: 'POST',

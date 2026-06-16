@@ -1,7 +1,7 @@
 export type RoomType = 'standard' | 'premium' | 'grand';
 export type RoomStatus = 'available' | 'maintenance' | 'disabled';
 export type BookingStatus = 'booked' | 'checked_in' | 'completed' | 'cancelled' | 'no_show';
-export type WaitlistStatus = 'waiting' | 'notified' | 'confirmed' | 'cancelled';
+export type WaitlistStatus = 'waiting' | 'notified' | 'confirmed' | 'cancelled' | 'timed_out';
 export type BillStatus = 'unpaid' | 'paid' | 'refunded';
 
 export interface Room {
